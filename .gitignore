@@ -1,0 +1,29 @@
+# Python
+__pycache__/
+*.py[cod]
+*.pyo
+.env
+venv/
+env/
+
+# Data - never commit raw datasets
+data/raw/
+data/processed/
+*.csv
+*.json
+*.parquet
+
+# Model checkpoints - these will be large
+checkpoints/
+*.pt
+*.pth
+*.bin
+
+# Jupyter
+.ipynb_checkpoints/
+
+# MacOS
+.DS_Store
+
+# VSCode
+.vscode/
