@@ -2,7 +2,8 @@
 
 ## Data Pipeline
 - [x] EDA complete
-- [ ] `data_cleaning.py` - filter short transcriptions, remove low count specialties, strip boilerplate from keywords, handle NaN keyword recovery from section headers, output to SQLite
+- [x] `data_cleaning.py` - filter short transcriptions, remove low count specialties, strip boilerplate from keywords, handle NaN keyword recovery from section headers, output to SQLite
+- [x] `test_data_cleaning.py` - pytest test suite, 20/20 passing
 - [ ] Section header parser - flexible regex for SOAP and non-SOAP templates
 - [ ] Bootstrap annotator - scispaCy + section context + keyword signal → BIO tagged sequences
 - [ ] Output preprocessed data to Parquet for model training
