@@ -8,6 +8,8 @@ from data_cleaning import (
     drop_incomplete_records,
     recover_nan_keywords,
     remove_specialty,
+    parse_sections,
+    parse_sections_df,
 )
 
 
@@ -213,3 +215,68 @@ class TestRecoverNanKeywords:
 
     def test_returns_dataframe(self, base_df):
         assert isinstance(recover_nan_keywords(base_df), pd.DataFrame)
+
+# ---------------------------------------------------------------------------
+# parse_sections
+# ---------------------------------------------------------------------------
+
+class TestParseSections:
+
+    def test_parses_standard_soap_note(self):
+        """Standard SOAP headers should be correctly parsed into sections."""
+        text = "SUBJECTIVE:\nPatient has chest pain.\nASSESSMENT:\nHypertension."
+        result = parse_sections(text)
+        assert "SUBJECTIVE:" in result or "SUBJECTIVE" in result
+        assert "chest pain" in result.get("SUBJECTIVE:", result.get("SUBJECTIVE", ""))
+
+    def test_parses_header_without_colon(self):
+        """Headers without trailing colon should still be detected."""
+        text = "ASSESSMENT\nHypertension."
+        result = parse_sections(text)
+        assert any("ASSESSMENT" in k for k in result.keys())
+
+    def test_parses_slash_header(self):
+        """Headers with '/' such as ASSESSMENT/PLAN should be detected."""
+        text = "ASSESSMENT/PLAN:\nHypertension. Follow up in 2 weeks."
+        result = parse_sections(text)
+        assert any("ASSESSMENT/PLAN" in k for k in result.keys())
+
+    def test_returns_empty_dict_for_none(self):
+        """None input should return an empty dict."""
+        assert parse_sections(None) == {}
+
+    def test_returns_empty_dict_for_non_string(self):
+        """Non-string input should return an empty dict."""
+        assert parse_sections(123) == {}
+
+    def test_content_before_first_header_excluded(self):
+        """Content before the first header should not appear in section values."""
+        text = "Some preamble text.\nSUBJECTIVE:\nPatient presents well."
+        result = parse_sections(text)
+        assert "preamble" not in str(result.values())
+
+
+# ---------------------------------------------------------------------------
+# parse_sections_df
+# ---------------------------------------------------------------------------
+
+class TestParseSectionsDf:
+
+    def test_adds_sections_column(self, base_df):
+        """Output DataFrame should contain a 'sections' column."""
+        result = parse_sections_df(base_df)
+        assert "sections" in result.columns
+
+    def test_sections_column_contains_dicts(self, base_df):
+        """Every value in the sections column should be a dict."""
+        result = parse_sections_df(base_df)
+        assert all(isinstance(s, dict) for s in result["sections"])
+
+    def test_returns_dataframe(self, base_df):
+        assert isinstance(parse_sections_df(base_df), pd.DataFrame)
+
+    def test_row_count_unchanged(self, base_df):
+        """Row count should be unchanged after parsing."""
+        result = parse_sections_df(base_df)
+        assert len(result) == len(base_df)
+
