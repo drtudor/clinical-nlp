@@ -8,10 +8,12 @@ from data_cleaning import (
     drop_incomplete_records,
     recover_nan_keywords,
     remove_specialty,
+    
+)
+from section_parser import (
     parse_sections,
     parse_sections_df,
 )
-
 
 # ---------------------------------------------------------------------------
 # Fixtures
